@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "noImplicitAny": true,
+      "module": "node16",
+      "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "allowJs": true
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules"]
+}
