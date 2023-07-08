@@ -11,7 +11,7 @@ export const webSocketServer = () => {
      ws.on('error', console.error);
      ws.on('message', (data) => {
       try{
-        handler(ws, data.toString());
+        handler(ws, data.toString(), wsServer.clients);
       } catch(e) {
         console.error(e);
       }

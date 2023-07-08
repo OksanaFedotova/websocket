@@ -1,6 +1,6 @@
 interface IUser {
-  login: string,
-  password: string,
+  name: string,
+  password?: string,
   index: number
 }
 export default IUser;
