@@ -1,7 +1,7 @@
-import IUser from "./IUser";
+import IUserWS from "./IUserWs";
 
 interface IRoom {
     roomId: number;
-    roomUsers: IUser[];
+    roomUsers: IUserWS[];
 }
 export default IRoom;

@@ -1,8 +1,8 @@
 import { WebSocket } from 'ws';
-import dbUsers from '../../db/dbUsers';
-import {IResponse} from '../../types/IResponse';
-import IUser from '../../types/IUser';
-import IUserWS from '../../types/IUserWs';
+import dbUsers from '../../../db/dbUsers';
+import {IResponse} from '../../../types/IResponse';
+import IUser from '../../../types/IUser';
+import IUserWS from '../../../types/IUserWs';
 
 export default (message: string, ws: IUserWS) => {
   const {name, password} = JSON.parse(message);
