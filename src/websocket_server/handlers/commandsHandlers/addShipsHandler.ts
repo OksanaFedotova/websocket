@@ -6,14 +6,18 @@ import IUserWS from "../../../types/IUserWs";
 export default (message: string, ws: IUserWS) => {
   const { gameId, ships, indexPlayer } = JSON.parse(message);
   const currentGame = dbGames.find(({ idGame }) => idGame === gameId);
-  if (currentGame) currentGame.startGame++;
-  if (currentGame?.startGame === 2) {
-    currentGame.clients?.forEach((user) => {
+  if (currentGame) { 
+    currentGame.startGame++;
+      currentGame.clients?.forEach((user) => {
       if (user.index === indexPlayer) {
         user.ships = ships;
       }
+    })
+  }
+  if (currentGame?.startGame === 2) {
+     currentGame.clients?.forEach((user, i, arr) => {
         const data = {
-            ships: ships,
+            ships: arr[+!i].ships,
             currentPlayerIndex: currentGame.clients[0].index,
           };
         const response = {
