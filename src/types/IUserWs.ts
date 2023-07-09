@@ -1,6 +1,7 @@
-import { WebSocket } from 'ws';
+import { WebSocket } from "ws";
 interface IUserWS extends WebSocket {
-  name: string,
-  index: number
+  name: string;
+  index: number;
+  ships?: [];
 }
 export default IUserWS;
