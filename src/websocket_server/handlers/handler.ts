@@ -5,6 +5,7 @@ import IUserWS from "../../types/IUserWs";
 import { IResponse } from "../../types/IResponse";
 import addUserHandler from "./commandsHandlers/addUserHandler";
 import addShipsHandler from "./commandsHandlers/addShipsHandler";
+import attackHandler from "./commandsHandlers/attackHandler";
 
 export const handler = (
   wsClient: WebSocket,
@@ -30,5 +31,8 @@ export const handler = (
       break;
     case "add_ships":
       addShipsHandler(message.data, wsClient as IUserWS);
+      break;
+    case "attack":
+      attackHandler(message.data);
   }
 };
