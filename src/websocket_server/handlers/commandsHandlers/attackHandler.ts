@@ -1,5 +1,6 @@
 import dbGames from "../../../db/dbGames";
 import IShip from "../../../types/IShip";
+import turnHandler from "./turnHandler";
 
 const getCoordinates = (num: number, length: number) => {
   let res = [];
@@ -47,53 +48,57 @@ const getDamagedCells = (ship: IShip, x: number, y: number) => {
       }
     }
   }
-  console.log("55", status);
   return status;
 };
 export default (message: string) => {
   const { x, y, gameId, indexPlayer } = JSON.parse(message);
   const currentGame = dbGames.find(({ idGame }) => idGame === gameId);
-  const enemy = currentGame?.clients.find(({ index }) => index !== indexPlayer);
-  let statusResponse: string | undefined = "miss";
-  if (enemy) {
-    if (!enemy.inGame) {
-      enemy?.ships?.forEach((ship) => {
-        ship.coordinates = ship.direction
-          ? {
-              x: ship.position.x,
-              y: getCoordinates(ship.position.y, ship.length),
-            }
-          : {
-              x: getCoordinates(ship.position.x, ship.length),
-              y: ship.position.y,
-            };
-        let status = getDamagedCells(ship, x, y);
-        if (status) statusResponse = status;
-      });
-      enemy.inGame = true;
-    } else {
-      enemy?.ships?.forEach((ship) => {
-        let status = getDamagedCells(ship, x, y);
-        console.log("82", status);
-        if (status) statusResponse = status;
-      });
+  if (currentGame) {
+    const enemy = currentGame?.clients.find(
+      ({ index }) => index !== indexPlayer
+    );
+    let statusResponse: string | undefined = "miss";
+    if (enemy) {
+      if (!enemy.inGame) {
+        enemy?.ships?.forEach((ship) => {
+          ship.coordinates = ship.direction
+            ? {
+                x: ship.position.x,
+                y: getCoordinates(ship.position.y, ship.length),
+              }
+            : {
+                x: getCoordinates(ship.position.x, ship.length),
+                y: ship.position.y,
+              };
+          let status = getDamagedCells(ship, x, y);
+          if (status) statusResponse = status;
+        });
+        enemy.inGame = true;
+      } else {
+        enemy?.ships?.forEach((ship) => {
+          let status = getDamagedCells(ship, x, y);
+          if (status) statusResponse = status;
+        });
+      }
     }
+    let data = JSON.stringify({
+      position: {
+        x: x,
+        y: y,
+      },
+      currentPlayer: indexPlayer,
+      status: statusResponse,
+    });
+    let response = {
+      type: "attack",
+      data: data,
+      id: 0,
+    };
+    if (statusResponse == "miss" || statusResponse == "kill") {
+      turnHandler(currentGame.clients, enemy?.index || indexPlayer);
+    }
+    currentGame.clients.forEach((client) =>
+      client.send(JSON.stringify(response))
+    );
   }
-  let data = JSON.stringify({
-    position: {
-      x: x,
-      y: y,
-    },
-    currentPlayer: indexPlayer,
-    status: statusResponse,
-  });
-  let response = {
-    type: "attack",
-    data: data,
-    id: 0,
-  };
-  console.log(response);
-  currentGame?.clients.forEach((client) =>
-    client.send(JSON.stringify(response))
-  );
 };

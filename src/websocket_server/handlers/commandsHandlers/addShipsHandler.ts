@@ -2,6 +2,7 @@ import dbGames from "../../../db/dbGames";
 import dbRooms from "../../../db/dbRooms";
 import { IResponse } from "../../../types/IResponse";
 import IUserWS from "../../../types/IUserWs";
+import turnHandler from "./turnHandler";
 
 export default (message: string, ws: IUserWS) => {
   const { gameId, ships, indexPlayer } = JSON.parse(message);
@@ -14,7 +15,6 @@ export default (message: string, ws: IUserWS) => {
       }
     });
   }
-  console.log(ships);
   if (currentGame?.startGame === 2) {
     currentGame.clients?.forEach((user, i, arr) => {
       const data = {
@@ -28,5 +28,6 @@ export default (message: string, ws: IUserWS) => {
       };
       user.send(JSON.stringify(response));
     });
+    turnHandler(currentGame.clients, currentGame.clients[0].index);
   }
 };
