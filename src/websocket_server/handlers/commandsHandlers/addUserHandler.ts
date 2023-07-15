@@ -4,7 +4,6 @@ import dbRooms from "../../../db/dbRooms";
 import { IResponse } from "../../../types/IResponse";
 import IUserWS from "../../../types/IUserWs";
 import updateRoom from "../../../utils/updateRoom";
-import checkUserInRoom from "../../../utils/checkUserInRoom";
 import removeRoom from "../../../utils/removeRoom";
 
 export default (message: string, ws: IUserWS, clients: Set<WebSocket>) => {
@@ -37,10 +36,7 @@ export default (message: string, ws: IUserWS, clients: Set<WebSocket>) => {
         };
         user.send(JSON.stringify(response));
       });
-      const updateRoomResponse = updateRoom();
-      clients.forEach((client) =>
-        client.send(JSON.stringify(updateRoomResponse))
-      );
+      updateRoom(clients);
       const game = {
         idGame: dbGames.length,
         clients: currentRoomUsers || [],

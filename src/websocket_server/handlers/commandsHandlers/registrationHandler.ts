@@ -1,10 +1,9 @@
 import { WebSocket } from "ws";
 import dbUsers from "../../../db/dbUsers";
 import { IResponse } from "../../../types/IResponse";
-import IUser from "../../../types/IUser";
 import IUserWS from "../../../types/IUserWs";
 
-export default (message: string, ws: IUserWS) => {
+export default (message: string, wsClient: IUserWS) => {
   const { name, password } = JSON.parse(message);
   let resData = {
     name: name,
@@ -22,12 +21,12 @@ export default (message: string, ws: IUserWS) => {
     existingUser.password === password
       ? (resData = { ...resData, index: existingUser.index })
       : (resData = { ...resData, error: true, errorText: "wrong password" });
-    ws.name = name;
-    ws.index = existingUser.index;
+    wsClient.name = name;
+    wsClient.index = existingUser.index;
   } else {
     dbUsers.set(name, { name, password, index: dbUsers.size });
-    ws.name = name;
-    ws.index = dbUsers.size;
+    wsClient.name = name;
+    wsClient.index = dbUsers.size;
   }
-  return response;
+  wsClient.send(JSON.stringify(response));
 };

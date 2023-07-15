@@ -1,10 +1,17 @@
+import WebSocket from "ws";
 import dbRooms from "../../../db/dbRooms";
+import { IResponse } from "../../../types/IResponse";
 import IRoom from "../../../types/IRoom";
 import IUserWS from "../../../types/IUserWs";
 import checkUserInRoom from "../../../utils/checkUserInRoom";
 import updateRoom from "../../../utils/updateRoom";
+import winnersHandler from "./winnersHandler";
 
-export default (_message: string, ws: IUserWS) => {
+export default (
+  _message: string,
+  ws: IUserWS,
+  clients: Set<WebSocket>
+): IResponse | undefined => {
   const roomUser = {
     name: ws.name,
     index: ws.index,
@@ -19,6 +26,6 @@ export default (_message: string, ws: IUserWS) => {
   };
   room.roomUsers.push(ws);
   dbRooms.push(room);
-  const response = updateRoom();
-  return response;
+  updateRoom(clients);
+  winnersHandler(ws.name, clients);
 };

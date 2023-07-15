@@ -5,6 +5,7 @@ import IUserWS from "../../../types/IUserWs";
 import finishHandler from "./finishHandler";
 import turnHandler from "./turnHandler";
 import winnersHandler from "./winnersHandler";
+import broadcast from "../../../utils/broadcast";
 
 const getCoordinates = (num: number, length: number) => {
   let res = [];
@@ -119,20 +120,10 @@ export default (message: string, clients: Set<WebSocket>) => {
           client.send(JSON.stringify(response))
         );
         if (enemy.ships) {
-          const finish = finishHandler(
-            enemy.ships,
-            indexPlayer
-            //currentPlayer?.name || ""
-          );
+          const finish = finishHandler(enemy.ships, indexPlayer);
           if (finish) {
-            const responseFinish = finish;
-            currentGame.clients.forEach((client) =>
-              client.send(JSON.stringify(responseFinish))
-            );
-            const responseWinersUpdate = winnersHandler(currentPlayer?.name);
-            clients.forEach((client) =>
-              client.send(JSON.stringify(responseWinersUpdate))
-            );
+            broadcast(currentGame.clients, finish, "for game users");
+            winnersHandler(currentPlayer?.name, clients);
           }
         }
       }
