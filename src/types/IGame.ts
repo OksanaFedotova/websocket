@@ -4,6 +4,7 @@ interface IGame {
   idGame: number;
   clients: IUserWS[];
   startGame: number;
-  currentPlayer: number;
+  currentPlayer: IUserWS;
+  turn: number;
 }
 export default IGame;

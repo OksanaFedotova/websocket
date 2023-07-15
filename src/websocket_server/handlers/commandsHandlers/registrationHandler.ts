@@ -17,7 +17,7 @@ export default (message: string, ws: IUserWS) => {
     data: JSON.stringify(resData),
     id: 0,
   };
-  const existingUser: IUser = dbUsers.get(name);
+  const existingUser = dbUsers.get(name);
   if (existingUser) {
     existingUser.password === password
       ? (resData = { ...resData, index: existingUser.index })

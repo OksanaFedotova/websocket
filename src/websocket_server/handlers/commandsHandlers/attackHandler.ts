@@ -1,6 +1,10 @@
+import WebSocket from "ws";
 import dbGames from "../../../db/dbGames";
 import IShip from "../../../types/IShip";
+import IUserWS from "../../../types/IUserWs";
+import finishHandler from "./finishHandler";
 import turnHandler from "./turnHandler";
+import winnersHandler from "./winnersHandler";
 
 const getCoordinates = (num: number, length: number) => {
   let res = [];
@@ -50,55 +54,85 @@ const getDamagedCells = (ship: IShip, x: number, y: number) => {
   }
   return status;
 };
-export default (message: string) => {
+export default (message: string, clients: Set<WebSocket>) => {
   const { x, y, gameId, indexPlayer } = JSON.parse(message);
   const currentGame = dbGames.find(({ idGame }) => idGame === gameId);
   if (currentGame) {
-    const enemy = currentGame?.clients.find(
-      ({ index }) => index !== indexPlayer
+    const currentPlayer = currentGame.clients.find(
+      ({ index }) => index === indexPlayer
     );
-    let statusResponse: string | undefined = "miss";
-    if (enemy) {
-      if (!enemy.inGame) {
-        enemy?.ships?.forEach((ship) => {
-          ship.coordinates = ship.direction
-            ? {
-                x: ship.position.x,
-                y: getCoordinates(ship.position.y, ship.length),
-              }
-            : {
-                x: getCoordinates(ship.position.x, ship.length),
-                y: ship.position.y,
-              };
-          let status = getDamagedCells(ship, x, y);
-          if (status) statusResponse = status;
+    if (currentPlayer) {
+      const turn = currentGame.clients[currentGame.turn].index;
+      if (turn !== currentPlayer.index) {
+        console.log("not your turn");
+        return;
+      }
+      const enemy = currentGame.clients.find(
+        ({ index }) => index !== indexPlayer
+      );
+      let statusResponse = "miss";
+      if (enemy) {
+        if (!enemy.inGame) {
+          enemy.ships?.forEach((ship) => {
+            ship.coordinates = ship.direction
+              ? {
+                  x: ship.position.x,
+                  y: getCoordinates(ship.position.y, ship.length),
+                }
+              : {
+                  x: getCoordinates(ship.position.x, ship.length),
+                  y: ship.position.y,
+                };
+            let status = getDamagedCells(ship, x, y);
+            if (status) {
+              statusResponse = status;
+              ship.status = status;
+            }
+          });
+          enemy.inGame = true;
+        } else {
+          enemy?.ships?.forEach((ship) => {
+            let status = getDamagedCells(ship, x, y);
+            if (status) {
+              statusResponse = status;
+              ship.status = status;
+            }
+          });
+        }
+        let data = JSON.stringify({
+          position: {
+            x: x,
+            y: y,
+          },
+          currentPlayer: indexPlayer,
+          status: statusResponse,
         });
-        enemy.inGame = true;
-      } else {
-        enemy?.ships?.forEach((ship) => {
-          let status = getDamagedCells(ship, x, y);
-          if (status) statusResponse = status;
-        });
+        let response = {
+          type: "attack",
+          data: data,
+          id: 0,
+        };
+        if (statusResponse == "miss" || statusResponse == "kill") {
+          turnHandler(currentGame, true);
+        }
+        if (enemy.ships) {
+          const finish = finishHandler(
+            enemy.ships,
+            indexPlayer
+            //currentPlayer?.name || ""
+          );
+          currentGame.clients.forEach((client) =>
+            client.send(JSON.stringify(response))
+          );
+          if (finish) {
+            response = finish;
+            const responseWinersUpdate = winnersHandler(currentPlayer?.name);
+            clients.forEach((client) =>
+              client.send(JSON.stringify(responseWinersUpdate))
+            );
+          }
+        }
       }
     }
-    let data = JSON.stringify({
-      position: {
-        x: x,
-        y: y,
-      },
-      currentPlayer: indexPlayer,
-      status: statusResponse,
-    });
-    let response = {
-      type: "attack",
-      data: data,
-      id: 0,
-    };
-    if (statusResponse == "miss" || statusResponse == "kill") {
-      turnHandler(currentGame.clients, enemy?.index || indexPlayer);
-    }
-    currentGame.clients.forEach((client) =>
-      client.send(JSON.stringify(response))
-    );
   }
 };

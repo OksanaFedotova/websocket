@@ -28,6 +28,6 @@ export default (message: string, ws: IUserWS) => {
       };
       user.send(JSON.stringify(response));
     });
-    turnHandler(currentGame.clients, currentGame.clients[0].index);
+    turnHandler(currentGame, false);
   }
 };

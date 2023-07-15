@@ -1,5 +1,4 @@
 import dbRooms from "../../../db/dbRooms";
-import { IResponse } from "../../../types/IResponse";
 import IRoom from "../../../types/IRoom";
 import IUserWS from "../../../types/IUserWs";
 import checkUserInRoom from "../../../utils/checkUserInRoom";
@@ -20,7 +19,6 @@ export default (_message: string, ws: IUserWS) => {
   };
   room.roomUsers.push(ws);
   dbRooms.push(room);
-  //const data = dbRooms.filter((room) => room.roomUsers.length === 1);
   const response = updateRoom();
   return response;
 };

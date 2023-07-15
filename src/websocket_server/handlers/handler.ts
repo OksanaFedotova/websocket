@@ -27,12 +27,13 @@ export const handler = (
         clients.forEach((client) => client.send(JSON.stringify(response)));
       break;
     case "add_user_to_room":
-      addUserHandler(message.data, wsClient as IUserWS);
+      addUserHandler(message.data, wsClient as IUserWS, clients);
       break;
     case "add_ships":
       addShipsHandler(message.data, wsClient as IUserWS);
       break;
     case "attack":
-      attackHandler(message.data);
+    case "randomAttack":
+      attackHandler(message.data, clients);
   }
 };
