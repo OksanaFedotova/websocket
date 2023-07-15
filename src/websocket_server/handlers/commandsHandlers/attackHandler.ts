@@ -115,17 +115,20 @@ export default (message: string, clients: Set<WebSocket>) => {
         if (statusResponse == "miss" || statusResponse == "kill") {
           turnHandler(currentGame, true);
         }
+        currentGame.clients.forEach((client) =>
+          client.send(JSON.stringify(response))
+        );
         if (enemy.ships) {
           const finish = finishHandler(
             enemy.ships,
             indexPlayer
             //currentPlayer?.name || ""
           );
-          currentGame.clients.forEach((client) =>
-            client.send(JSON.stringify(response))
-          );
           if (finish) {
-            response = finish;
+            const responseFinish = finish;
+            currentGame.clients.forEach((client) =>
+              client.send(JSON.stringify(responseFinish))
+            );
             const responseWinersUpdate = winnersHandler(currentPlayer?.name);
             clients.forEach((client) =>
               client.send(JSON.stringify(responseWinersUpdate))

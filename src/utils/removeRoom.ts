@@ -8,6 +8,5 @@ export default (roomUser: IUser) => {
       ({ name, index }) => roomUser.name === name && roomUser.index === index
     )
   )?.roomId;
-  if (index)
-  dbRooms.splice(index, 1);
+  if (index) dbRooms.splice(index, 1);
 };
