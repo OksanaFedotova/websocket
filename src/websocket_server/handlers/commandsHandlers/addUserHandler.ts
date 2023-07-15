@@ -5,6 +5,7 @@ import { IResponse } from "../../../types/IResponse";
 import IUserWS from "../../../types/IUserWs";
 import updateRoom from "../../../utils/updateRoom";
 import removeRoom from "../../../utils/removeRoom";
+import { randomUUID } from "crypto";
 
 export default (message: string, ws: IUserWS, clients: Set<WebSocket>) => {
   const { indexRoom } = JSON.parse(message);
@@ -43,6 +44,7 @@ export default (message: string, ws: IUserWS, clients: Set<WebSocket>) => {
         startGame: 0,
         currentPlayer: currentRoomUsers[0],
         turn: 0,
+        gameType: "multiplayer",
       };
       dbGames.push(game);
     }

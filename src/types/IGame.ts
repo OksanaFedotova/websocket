@@ -6,5 +6,6 @@ interface IGame {
   startGame: number;
   currentPlayer: IUserWS;
   turn: number;
+  gameType: string;
 }
 export default IGame;

@@ -5,7 +5,7 @@ import IUserWS from "../../types/IUserWs";
 import addUserHandler from "./commandsHandlers/addUserHandler";
 import addShipsHandler from "./commandsHandlers/addShipsHandler";
 import attackHandler from "./commandsHandlers/attackHandler";
-import botHandler from "./commandsHandlers/botHandler";
+import botHandler from "./commandsHandlers/bot/botHandler";
 
 export const handler = (
   wsClient: WebSocket,

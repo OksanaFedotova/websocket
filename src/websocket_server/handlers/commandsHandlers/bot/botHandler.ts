@@ -1,6 +1,6 @@
-import dbBot from "../../../db/dbBot";
-import { IResponse } from "../../../types/IResponse";
-import IUserWS from "../../../types/IUserWs";
+import dbBot from "../../../../db/dbBot";
+import { IResponse } from "../../../../types/IResponse";
+import IUserWS from "../../../../types/IUserWs";
 
 export default (wsClient: IUserWS) => {
   const data = {
@@ -19,6 +19,7 @@ export default (wsClient: IUserWS) => {
     startGame: 0,
     currentPlayer: wsClient,
     turn: 0,
+    gameType: "bot",
   };
   dbBot.push(game);
 };
