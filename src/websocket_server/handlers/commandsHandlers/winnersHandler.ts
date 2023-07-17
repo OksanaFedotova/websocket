@@ -3,13 +3,19 @@ import dbWinners from "../../../db/dbWinners";
 import { IResponse } from "../../../types/IResponse";
 import broadcast from "../../../utils/broadcast";
 
-export default (winnerName: string, clients: Set<WebSocket>) => {
+export default (
+  winnerName: string,
+  clients: Set<WebSocket>,
+  update: boolean
+) => {
   if (dbWinners.some(({ name }) => name === winnerName)) {
-    dbWinners.forEach(({ name, wins }) => {
-      if (name === winnerName) {
-        wins++;
-      }
-    });
+    if (update) {
+      dbWinners.forEach((user) => {
+        if (user.name === winnerName) {
+          user.wins++;
+        }
+      });
+    }
   } else {
     dbWinners.push({ name: winnerName, wins: 0 });
   }

@@ -2,8 +2,14 @@ import { WebSocket } from "ws";
 import dbUsers from "../../../db/dbUsers";
 import { IResponse } from "../../../types/IResponse";
 import IUserWS from "../../../types/IUserWs";
+import updateRoom from "../../../utils/updateRoom";
+import winnersHandler from "./winnersHandler";
 
-export default (message: string, wsClient: IUserWS) => {
+export default (
+  message: string,
+  wsClient: IUserWS,
+  clients: Set<WebSocket>
+) => {
   const { name, password } = JSON.parse(message);
   let resData = {
     name: name,
@@ -29,4 +35,6 @@ export default (message: string, wsClient: IUserWS) => {
     wsClient.index = dbUsers.size;
   }
   wsClient.send(JSON.stringify(response));
+  updateRoom(clients);
+  winnersHandler(wsClient.name, clients, false);
 };

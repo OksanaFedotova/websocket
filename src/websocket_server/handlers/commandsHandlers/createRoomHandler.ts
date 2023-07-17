@@ -27,5 +27,5 @@ export default (
   room.roomUsers.push(ws);
   dbRooms.push(room);
   updateRoom(clients);
-  winnersHandler(ws.name, clients);
+  winnersHandler(ws.name, clients, false);
 };

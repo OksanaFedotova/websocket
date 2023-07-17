@@ -1,3 +1,4 @@
+import IShip from "./IShip";
 import IUserWS from "./IUserWs";
 
 interface IBotGame {
@@ -5,7 +6,9 @@ interface IBotGame {
   user: IUserWS;
   startGame: number;
   currentPlayer: IUserWS;
+  bot: IShip[];
   turn: number;
   gameType: string;
+  botIndex: number;
 }
 export default IBotGame;

@@ -1,62 +1,59 @@
 import WebSocket from "ws";
 import dbGames from "../../../db/dbGames";
 import IShip from "../../../types/IShip";
-import IUserWS from "../../../types/IUserWs";
 import finishHandler from "./finishHandler";
 import turnHandler from "./turnHandler";
 import winnersHandler from "./winnersHandler";
 import broadcast from "../../../utils/broadcast";
+import getCoordinates from "../../../utils/getCoordinates";
+import dbBot from "../../../db/dbBot";
+import randomInteger from "../../../utils/randomInteger";
+import { calcEmptyEls } from "../../../utils/utils";
 
-const getCoordinates = (num: number, length: number) => {
-  let res = [];
-  for (let i = 0; i < length; i++) {
-    res.push(num);
-    num++;
+const checkCoordinates = (
+  point: number,
+  arr: number[],
+  a: number,
+  b: number
+) => {
+  let status;
+  if (point === a) {
+    arr.forEach((coor, i) => {
+      if (coor === b) {
+        delete arr[i];
+        const damagedCells = calcEmptyEls(arr);
+        status = damagedCells === arr.length ? "killed" : "shot";
+      }
+    });
   }
-  return res;
+  return status;
 };
-const calcEmptyEls = (arr: (number | undefined)[]) => {
-  let res = 0;
-  for (let i = 0; i < arr.length; i++) {
-    if (!arr[i]) {
-      res++;
-    }
-  }
-  return res;
-};
+
 const getDamagedCells = (ship: IShip, x: number, y: number) => {
   let status;
   if (ship.direction) {
-    if (ship.coordinates.x === x) {
-      if (typeof ship.coordinates.y === "object") {
-        const coorY = ship.coordinates.y;
-        coorY.forEach((coor, i) => {
-          if (coor === y) {
-            delete coorY[i];
-            const damagedCells = calcEmptyEls(coorY);
-            status = damagedCells === coorY.length ? "killed" : "shot";
-          }
-        });
-      }
+    if (
+      typeof ship.coordinates!.x === "number" &&
+      typeof ship.coordinates!.y === "object"
+    ) {
+      status = checkCoordinates(ship.coordinates!.x, ship.coordinates!.y, x, y);
     }
   } else {
-    if (ship.coordinates.y === y) {
-      if (typeof ship.coordinates.x === "object") {
-        const coorX = ship.coordinates.x;
-        coorX.forEach((coor, i) => {
-          if (coor === x) {
-            delete coorX[i];
-            const damagedCells = calcEmptyEls(coorX);
-            status = damagedCells === coorX.length ? "killed" : "shot";
-          }
-        });
-      }
+    if (
+      typeof ship.coordinates!.y === "number" &&
+      typeof ship.coordinates!.x === "object"
+    ) {
+      status = checkCoordinates(ship.coordinates!.y, ship.coordinates!.x, y, x);
     }
   }
   return status;
 };
 export default (message: string, clients: Set<WebSocket>) => {
-  const { x, y, gameId, indexPlayer } = JSON.parse(message);
+  let { x, y, gameId, indexPlayer } = JSON.parse(message);
+  if (!x && !y) {
+    x = randomInteger(0, 10);
+    y = randomInteger(0, 10);
+  }
   const currentGame = dbGames.find(({ idGame }) => idGame === gameId);
   if (currentGame) {
     const currentPlayer = currentGame.clients.find(
@@ -71,6 +68,7 @@ export default (message: string, clients: Set<WebSocket>) => {
       const enemy = currentGame.clients.find(
         ({ index }) => index !== indexPlayer
       );
+      //
       let statusResponse = "miss";
       if (enemy) {
         if (!enemy.inGame) {
@@ -92,6 +90,7 @@ export default (message: string, clients: Set<WebSocket>) => {
           });
           enemy.inGame = true;
         } else {
+          //
           enemy?.ships?.forEach((ship) => {
             let status = getDamagedCells(ship, x, y);
             if (status) {
@@ -99,6 +98,7 @@ export default (message: string, clients: Set<WebSocket>) => {
               ship.status = status;
             }
           });
+          //
         }
         let data = JSON.stringify({
           position: {
@@ -123,10 +123,48 @@ export default (message: string, clients: Set<WebSocket>) => {
           const finish = finishHandler(enemy.ships, indexPlayer);
           if (finish) {
             broadcast(currentGame.clients, finish, "for game users");
-            winnersHandler(currentPlayer?.name, clients);
+            winnersHandler(currentPlayer?.name, clients, true);
           }
         }
       }
+      //
     }
+  } else {
+    const gameBot = dbBot.find(({ idGame }) => idGame === gameId);
+    // if (gameBot?.currentPlayer !== indexPlayer) {
+    //   console.log("not your turn");
+    //   return;
+    // } else {
+    let statusResponse = "miss";
+    gameBot?.bot.forEach((ship) => {
+      let status = getDamagedCells(ship, x, y);
+      if (status) {
+        statusResponse = status;
+        ship.status = status;
+      }
+    });
+    let data = JSON.stringify({
+      position: {
+        x: x,
+        y: y,
+      },
+      currentPlayer: indexPlayer,
+      status: statusResponse,
+    });
+    let response = {
+      type: "attack",
+      data: data,
+      id: 0,
+    };
+    if (statusResponse == "miss" || statusResponse == "kill") {
+      turnHandler(gameBot!, true);
+    }
+    gameBot?.user.send(JSON.stringify(response));
+    const finish = finishHandler(gameBot?.bot!, indexPlayer);
+    if (finish) {
+      broadcast([gameBot?.user!], finish, "for game users");
+      winnersHandler(gameBot!.user.name, clients, true);
+    }
+    // }
   }
 };

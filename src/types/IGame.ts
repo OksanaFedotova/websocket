@@ -1,4 +1,10 @@
+import IShip from "./IShip";
 import IUserWS from "./IUserWs";
+
+interface IBot {
+  index: number;
+  ships?: IShip[];
+}
 
 interface IGame {
   idGame: number;

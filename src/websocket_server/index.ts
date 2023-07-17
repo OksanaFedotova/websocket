@@ -1,6 +1,8 @@
 import "dotenv/config";
 import { WebSocketServer, Server } from "ws";
 import { handler } from "./handlers/handler";
+import closeHandler from "./handlers/closeHandler";
+import IUserWS from "../types/IUserWs";
 
 export const webSocketServer = () => {
   const PORT = process.env.port || 3000;
@@ -15,6 +17,7 @@ export const webSocketServer = () => {
         console.error(e);
       }
     });
+    ws.on("close", () => closeHandler(ws as IUserWS, wsServer.clients));
   });
   wsServer.on("close", () => {
     console.log("WebSocket server closed");

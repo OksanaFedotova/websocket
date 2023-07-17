@@ -1,10 +1,16 @@
 import dbBot from "../../../db/dbBot";
 import dbGames from "../../../db/dbGames";
 import IUserWS from "../../../types/IUserWs";
+import addShips from "./bot/addShipsBot";
 import turnHandler from "./turnHandler";
 
+const response = {
+  type: "start_game",
+  data: "",
+  id: 0,
+};
 export default (message: string, ws: IUserWS) => {
-  const { gameId, ships, indexPlayer } = JSON.parse(message);
+  const { gameId, ships: shipsData, indexPlayer } = JSON.parse(message);
   const currentGame = dbGames.find(({ idGame }) => idGame === gameId);
   const gameBot = dbBot.find(({ idGame }) => idGame === gameId);
   let gameType;
@@ -13,14 +19,13 @@ export default (message: string, ws: IUserWS) => {
   } else if (gameBot && gameBot.gameType === "bot") {
     gameType = "bot";
   }
-  console.log(gameType);
   switch (gameType) {
     case "multiplayer":
       if (currentGame) {
         currentGame.startGame++;
         currentGame.clients?.forEach((user) => {
           if (user.index === indexPlayer) {
-            user.ships = ships;
+            user.ships = shipsData;
           }
         });
       }
@@ -30,18 +35,26 @@ export default (message: string, ws: IUserWS) => {
             ships: arr[+!i].ships,
             currentPlayerIndex: currentGame.clients[0].index,
           };
-          const response = {
-            type: "start_game",
-            data: JSON.stringify(data),
-            id: 0,
-          };
+          response.data = JSON.stringify(data);
           user.send(JSON.stringify(response));
         });
         turnHandler(currentGame, false);
       }
       break;
     case "bot":
-      console.log("not implemented");
+      addShips(gameId);
+      const ships = dbBot[gameId].bot.map((ship) => {
+        const temp = JSON.parse(JSON.stringify(ship));
+        delete temp.coordinates;
+        return temp;
+      });
+      const data = {
+        ships,
+        currentPlayerIndex: ws.index,
+      };
+      response.data = JSON.stringify(data);
+      ws.send(JSON.stringify(response));
+      turnHandler(gameBot!, true);
     default:
       break;
   }

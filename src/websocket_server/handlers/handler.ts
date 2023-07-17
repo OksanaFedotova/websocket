@@ -17,9 +17,10 @@ export const handler = (
   const type = message.type;
   switch (type) {
     case "reg":
-      registrationHandler(message.data, wsClient as IUserWS);
+      registrationHandler(message.data, wsClient as IUserWS, clients);
       break;
     case "create_room":
+      //console.log(message.type)
       createRoomHandler(message.data, wsClient as IUserWS, clients);
       break;
     case "add_user_to_room":
@@ -31,7 +32,9 @@ export const handler = (
     case "attack":
     case "randomAttack":
       attackHandler(message.data, clients);
+      break;
     case "single_play":
       botHandler(wsClient as IUserWS);
+      break;
   }
 };

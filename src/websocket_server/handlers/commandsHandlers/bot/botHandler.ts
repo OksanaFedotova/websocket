@@ -1,4 +1,5 @@
 import dbBot from "../../../../db/dbBot";
+import dbUsers from "../../../../db/dbUsers";
 import { IResponse } from "../../../../types/IResponse";
 import IUserWS from "../../../../types/IUserWs";
 
@@ -20,6 +21,8 @@ export default (wsClient: IUserWS) => {
     currentPlayer: wsClient,
     turn: 0,
     gameType: "bot",
+    bot: [],
+    botIndex: dbUsers.size,
   };
   dbBot.push(game);
 };
