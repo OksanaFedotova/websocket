@@ -16,6 +16,8 @@
         "@types/ws": "^8.5.5",
         "@typescript-eslint/eslint-plugin": "^5.61.0",
         "@typescript-eslint/parser": "^5.61.0",
+        "eslint-config-prettier": "^8.8.0",
+        "eslint-plugin-prettier": "^4.2.1",
         "cross-env": "^7.0.3",
         "eslint": "^8.44.0",
         "nodemon": "^2.0.22",
@@ -24,7 +26,6 @@
         "typescript": "^5.1.6"
     },
     "dependencies": {
-        "@nut-tree/nut-js": "^2.3.0",
         "dotenv": "^16.3.1",
         "ws": "^8.13.0"
     }
