@@ -1,12 +1,12 @@
-import dbBot from "../../../db/dbBot";
-import dbGames from "../../../db/dbGames";
-import IUserWS from "../../../types/IUserWs";
-import addShips from "./bot/addShipsBot";
-import turnHandler from "./turnHandler";
+import dbBot from '../../../db/dbBot';
+import dbGames from '../../../db/dbGames';
+import IUserWS from '../../../types/IUserWs';
+import addShips from './bot/addShipsBot';
+import turnHandler from './turnHandler';
 
 const response = {
-  type: "start_game",
-  data: "",
+  type: 'start_game',
+  data: '',
   id: 0,
 };
 export default (message: string, ws: IUserWS) => {
@@ -14,13 +14,13 @@ export default (message: string, ws: IUserWS) => {
   const currentGame = dbGames.find(({ idGame }) => idGame === gameId);
   const gameBot = dbBot.find(({ idGame }) => idGame === gameId);
   let gameType;
-  if (currentGame && currentGame.gameType === "multiplayer") {
-    gameType = "multiplayer";
-  } else if (gameBot && gameBot.gameType === "bot") {
-    gameType = "bot";
+  if (currentGame && currentGame.gameType === 'multiplayer') {
+    gameType = 'multiplayer';
+  } else if (gameBot && gameBot.gameType === 'bot') {
+    gameType = 'bot';
   }
   switch (gameType) {
-    case "multiplayer":
+    case 'multiplayer':
       if (currentGame) {
         currentGame.startGame++;
         currentGame.clients?.forEach((user) => {
@@ -41,7 +41,7 @@ export default (message: string, ws: IUserWS) => {
         turnHandler(currentGame, false);
       }
       break;
-    case "bot":
+    case 'bot':
       addShips(gameId);
       const ships = dbBot[gameId].bot.map((ship) => {
         const temp = JSON.parse(JSON.stringify(ship));

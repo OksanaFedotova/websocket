@@ -1,4 +1,4 @@
-import Ships from "./Ships";
+import Ships from './Ships';
 
 interface IShip {
   status?: undefined | string;

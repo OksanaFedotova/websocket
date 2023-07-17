@@ -1,3 +1,3 @@
-import IRoom from "../types/IRoom";
+import IRoom from '../types/IRoom';
 
 export default [] as IRoom[];

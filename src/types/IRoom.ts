@@ -1,4 +1,4 @@
-import IUserWS from "./IUserWs";
+import IUserWS from './IUserWs';
 
 interface IRoom {
   roomId: number;

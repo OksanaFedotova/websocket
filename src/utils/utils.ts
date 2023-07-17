@@ -1,8 +1,7 @@
-import IShip from "../types/IShip";
-import IUserWS from "../types/IUserWs";
+import IShip from '../types/IShip';
+import IUserWS from '../types/IUserWs';
 
-const getArray = (length: number) =>
-  Array.from({ length: length }, (_, index) => index);
+const getArray = (length: number) => Array.from({ length: length }, (_, index) => index);
 
 const deleteCells = (arr: number[], x: number, y: number, length: number) => {
   for (let i = 0; i < length + 1; i++) {
@@ -17,13 +16,7 @@ const deleteCells = (arr: number[], x: number, y: number, length: number) => {
     }
   }
 };
-const getOccupiedCells = (
-  arr: number[],
-  direction: boolean,
-  x: number,
-  y: number,
-  length: number
-) => {
+const getOccupiedCells = (arr: number[], direction: boolean, x: number, y: number, length: number) => {
   if (direction) {
     deleteCells(arr, x, y, length);
   } else {
@@ -47,9 +40,7 @@ const calcEmptyEls = (arr: (number | undefined)[]) => {
   return res;
 };
 const checkAttack = (x: number, y: number, currentPlayer: IUserWS) =>
-  currentPlayer.attacks.some(
-    (attack) => JSON.stringify(attack) === JSON.stringify({ x, y })
-  );
+  currentPlayer.attacks.some((attack) => JSON.stringify(attack) === JSON.stringify({ x, y }));
 
 const checkStatus = (point: number, arr: number[], a: number, b: number) => {
   let status;
@@ -58,7 +49,7 @@ const checkStatus = (point: number, arr: number[], a: number, b: number) => {
       if (coor === b) {
         delete arr[i];
         const damagedCells = calcEmptyEls(arr);
-        status = damagedCells === arr.length ? "killed" : "shot";
+        status = damagedCells === arr.length ? 'killed' : 'shot';
       }
     });
   }
@@ -67,27 +58,14 @@ const checkStatus = (point: number, arr: number[], a: number, b: number) => {
 const getDamagedCells = (ship: IShip, x: number, y: number) => {
   let status;
   if (ship.direction) {
-    if (
-      typeof ship.coordinates!.x === "number" &&
-      typeof ship.coordinates!.y === "object"
-    ) {
+    if (typeof ship.coordinates!.x === 'number' && typeof ship.coordinates!.y === 'object') {
       status = checkStatus(ship.coordinates!.x, ship.coordinates!.y, x, y);
     }
   } else {
-    if (
-      typeof ship.coordinates!.y === "number" &&
-      typeof ship.coordinates!.x === "object"
-    ) {
+    if (typeof ship.coordinates!.y === 'number' && typeof ship.coordinates!.x === 'object') {
       status = checkStatus(ship.coordinates!.y, ship.coordinates!.x, y, x);
     }
   }
   return status;
 };
-export {
-  getArray,
-  checkCoordinates,
-  getOccupiedCells,
-  calcEmptyEls,
-  checkAttack,
-  getDamagedCells,
-};
+export { getArray, checkCoordinates, getOccupiedCells, calcEmptyEls, checkAttack, getDamagedCells };

@@ -1,13 +1,9 @@
-import WebSocket from "ws";
-import dbWinners from "../../../db/dbWinners";
-import { IResponse } from "../../../types/IResponse";
-import broadcast from "../../../utils/broadcast";
+import WebSocket from 'ws';
+import dbWinners from '../../../db/dbWinners';
+import { IResponse } from '../../../types/IResponse';
+import broadcast from '../../../utils/broadcast';
 
-export default (
-  winnerName: string,
-  clients: Set<WebSocket>,
-  update: boolean
-) => {
+export default (winnerName: string, clients: Set<WebSocket>, update: boolean) => {
   if (dbWinners.some(({ name }) => name === winnerName)) {
     if (update) {
       dbWinners.forEach((user) => {
@@ -21,9 +17,9 @@ export default (
   }
   const data = JSON.stringify(dbWinners);
   const response: IResponse = {
-    type: "update_winners",
+    type: 'update_winners',
     data: data,
     id: 0,
   };
-  broadcast(clients, response, "response for all clients:");
+  broadcast(clients, response, 'response for all clients:');
 };

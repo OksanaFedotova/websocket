@@ -1,9 +1,9 @@
-import dbBot from "../../../../db/dbBot";
-import IShip from "../../../../types/IShip";
-import Ships from "../../../../types/Ships";
-import getCoordinates from "../../../../utils/getCoordinates";
-import randomInteger from "../../../../utils/randomInteger";
-import { checkCoordinates, getOccupiedCells } from "../../../../utils/utils";
+import dbBot from '../../../../db/dbBot';
+import IShip from '../../../../types/IShip';
+import Ships from '../../../../types/Ships';
+import getCoordinates from '../../../../utils/getCoordinates';
+import randomInteger from '../../../../utils/randomInteger';
+import { checkCoordinates, getOccupiedCells } from '../../../../utils/utils';
 
 const getDirection = () => randomInteger(0, 1);
 
@@ -55,35 +55,17 @@ const addShips = (index: number) => {
       let ship = getShip(length, shipType);
       getShipCoordinates(ship);
       if (ship.direction) {
-        while (
-          !checkCoordinates(
-            dbBot[index].botMap,
-            ship.position.x,
-            getCoordinates(ship.position.y, ship.length)
-          )
-        ) {
+        while (!checkCoordinates(dbBot[index].botMap, ship.position.x, getCoordinates(ship.position.y, ship.length))) {
           ship = getShip(length, shipType);
           getShipCoordinates(ship);
         }
       } else if (!ship.direction) {
-        while (
-          !checkCoordinates(
-            dbBot[index].botMap,
-            ship.position.x,
-            getCoordinates(ship.position.x, ship.length)
-          )
-        ) {
+        while (!checkCoordinates(dbBot[index].botMap, ship.position.x, getCoordinates(ship.position.x, ship.length))) {
           ship = getShip(length, shipType);
           getShipCoordinates(ship);
         }
       }
-      getOccupiedCells(
-        dbBot[index].botMap,
-        ship.direction,
-        ship.position.x,
-        ship.position.y,
-        ship.length
-      );
+      getOccupiedCells(dbBot[index].botMap, ship.direction, ship.position.x, ship.position.y, ship.length);
       dbBot[index].bot.push(ship);
     }
   });

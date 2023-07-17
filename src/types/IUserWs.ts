@@ -1,5 +1,5 @@
-import { WebSocket } from "ws";
-import IShip from "./IShip";
+import { WebSocket } from 'ws';
+import IShip from './IShip';
 
 interface IUserWS extends WebSocket {
   name: string;

@@ -1,25 +1,19 @@
-import WebSocket from "ws";
-import dbGames from "../../../db/dbGames";
-import dbRooms from "../../../db/dbRooms";
-import { IResponse } from "../../../types/IResponse";
-import IUserWS from "../../../types/IUserWs";
-import updateRoom from "../../../utils/updateRoom";
-import removeRoom from "../../../utils/removeRoom";
+import WebSocket from 'ws';
+import dbGames from '../../../db/dbGames';
+import dbRooms from '../../../db/dbRooms';
+import { IResponse } from '../../../types/IResponse';
+import IUserWS from '../../../types/IUserWs';
+import updateRoom from '../../../utils/updateRoom';
+import removeRoom from '../../../utils/removeRoom';
 
 export default (message: string, ws: IUserWS, clients: Set<WebSocket>) => {
   const { indexRoom } = JSON.parse(message);
   const { name, index } = ws;
   ws.attacks = [];
-  const currentRoomUsers = dbRooms.find(
-    ({ roomId }) => roomId === indexRoom
-  )?.roomUsers;
+  const currentRoomUsers = dbRooms.find(({ roomId }) => roomId === indexRoom)?.roomUsers;
   if (currentRoomUsers) {
-    if (
-      currentRoomUsers?.some(
-        (user) => user.index === index && user.name === name
-      )
-    ) {
-      console.log("you are already in this room");
+    if (currentRoomUsers?.some((user) => user.index === index && user.name === name)) {
+      console.log('you are already in this room');
       return;
     } else {
       currentRoomUsers?.push(ws);
@@ -31,7 +25,7 @@ export default (message: string, ws: IUserWS, clients: Set<WebSocket>) => {
           idPlayer: user.index,
         };
         const response: IResponse = {
-          type: "create_game",
+          type: 'create_game',
           data: JSON.stringify(data),
           id: 0,
         };
@@ -44,7 +38,7 @@ export default (message: string, ws: IUserWS, clients: Set<WebSocket>) => {
         startGame: 0,
         currentPlayer: currentRoomUsers[0],
         turn: 0,
-        gameType: "multiplayer",
+        gameType: 'multiplayer',
       };
       dbGames.push(game);
     }

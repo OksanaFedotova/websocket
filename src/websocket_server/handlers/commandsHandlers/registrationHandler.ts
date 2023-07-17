@@ -1,24 +1,20 @@
-import { WebSocket } from "ws";
-import dbUsers from "../../../db/dbUsers";
-import { IResponse } from "../../../types/IResponse";
-import IUserWS from "../../../types/IUserWs";
-import updateRoom from "../../../utils/updateRoom";
-import winnersHandler from "./winnersHandler";
+import { WebSocket } from 'ws';
+import dbUsers from '../../../db/dbUsers';
+import { IResponse } from '../../../types/IResponse';
+import IUserWS from '../../../types/IUserWs';
+import updateRoom from '../../../utils/updateRoom';
+import winnersHandler from './winnersHandler';
 
-export default (
-  message: string,
-  wsClient: IUserWS,
-  clients: Set<WebSocket>
-) => {
+export default (message: string, wsClient: IUserWS, clients: Set<WebSocket>) => {
   const { name, password } = JSON.parse(message);
   let resData = {
     name: name,
     index: dbUsers.size,
     error: false,
-    errorText: "",
+    errorText: '',
   };
   const response: IResponse = {
-    type: "reg",
+    type: 'reg',
     data: JSON.stringify(resData),
     id: 0,
   };
@@ -26,7 +22,7 @@ export default (
   if (existingUser) {
     existingUser.password === password
       ? (resData = { ...resData, index: existingUser.index })
-      : (resData = { ...resData, error: true, errorText: "wrong password" });
+      : (resData = { ...resData, error: true, errorText: 'wrong password' });
     wsClient.name = name;
     wsClient.index = existingUser.index;
   } else {

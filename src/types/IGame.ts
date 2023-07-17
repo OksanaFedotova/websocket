@@ -1,5 +1,5 @@
-import IShip from "./IShip";
-import IUserWS from "./IUserWs";
+import IShip from './IShip';
+import IUserWS from './IUserWs';
 
 interface IBot {
   index: number;
