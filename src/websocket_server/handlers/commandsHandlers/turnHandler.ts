@@ -12,7 +12,6 @@ export default (currentGame: IGame | IBotGame, change: boolean) => {
     const data = JSON.stringify({
       currentPlayer: (currentGame as IGame).clients[currentGame.turn].index,
     });
-    //console.log((currentGame as IGame).clients[currentGame.turn].index);
     response.data = data;
     (currentGame as IGame).clients.forEach((user) => {
       user.send(JSON.stringify(response));

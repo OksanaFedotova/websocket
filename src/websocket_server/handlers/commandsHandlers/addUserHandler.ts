@@ -5,11 +5,11 @@ import { IResponse } from "../../../types/IResponse";
 import IUserWS from "../../../types/IUserWs";
 import updateRoom from "../../../utils/updateRoom";
 import removeRoom from "../../../utils/removeRoom";
-import { randomUUID } from "crypto";
 
 export default (message: string, ws: IUserWS, clients: Set<WebSocket>) => {
   const { indexRoom } = JSON.parse(message);
   const { name, index } = ws;
+  ws.attacks = [];
   const currentRoomUsers = dbRooms.find(
     ({ roomId }) => roomId === indexRoom
   )?.roomUsers;

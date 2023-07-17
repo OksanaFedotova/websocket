@@ -8,46 +8,13 @@ import broadcast from "../../../utils/broadcast";
 import getCoordinates from "../../../utils/getCoordinates";
 import dbBot from "../../../db/dbBot";
 import randomInteger from "../../../utils/randomInteger";
-import { calcEmptyEls } from "../../../utils/utils";
-
-const checkCoordinates = (
-  point: number,
-  arr: number[],
-  a: number,
-  b: number
-) => {
-  let status;
-  if (point === a) {
-    arr.forEach((coor, i) => {
-      if (coor === b) {
-        delete arr[i];
-        const damagedCells = calcEmptyEls(arr);
-        status = damagedCells === arr.length ? "killed" : "shot";
-      }
-    });
-  }
-  return status;
-};
-
-const getDamagedCells = (ship: IShip, x: number, y: number) => {
-  let status;
-  if (ship.direction) {
-    if (
-      typeof ship.coordinates!.x === "number" &&
-      typeof ship.coordinates!.y === "object"
-    ) {
-      status = checkCoordinates(ship.coordinates!.x, ship.coordinates!.y, x, y);
-    }
-  } else {
-    if (
-      typeof ship.coordinates!.y === "number" &&
-      typeof ship.coordinates!.x === "object"
-    ) {
-      status = checkCoordinates(ship.coordinates!.y, ship.coordinates!.x, y, x);
-    }
-  }
-  return status;
-};
+import {
+  calcEmptyEls,
+  checkAttack,
+  getDamagedCells,
+} from "../../../utils/utils";
+import IUserWS from "../../../types/IUserWs";
+import botAttack from "./bot/botAttack";
 export default (message: string, clients: Set<WebSocket>) => {
   let { x, y, gameId, indexPlayer } = JSON.parse(message);
   if (typeof x === "undefined") {
@@ -64,6 +31,11 @@ export default (message: string, clients: Set<WebSocket>) => {
       if (turn !== currentPlayer.index) {
         console.log("not your turn");
         return;
+      }
+      if (checkAttack(x, y, currentPlayer)) {
+        return;
+      } else {
+        currentPlayer.attacks.push({ x, y });
       }
       const enemy = currentGame.clients.find(
         ({ index }) => index !== indexPlayer
@@ -121,48 +93,48 @@ export default (message: string, clients: Set<WebSocket>) => {
           if (finish) {
             broadcast(currentGame.clients, finish, "for game users");
             winnersHandler(currentPlayer?.name, clients, true);
+            const index = dbGames.findIndex(({ idGame }) => idGame === gameId);
+            dbGames.splice(index, 1);
           }
         }
       }
-      //
     }
   } else {
     const gameBot = dbBot.find(({ idGame }) => idGame === gameId);
-    // if (gameBot?.currentPlayer !== indexPlayer) {
-    //   console.log("not your turn");
-    //   return;
-    // } else {
-    let statusResponse = "miss";
-    gameBot?.bot.forEach((ship) => {
-      let status = getDamagedCells(ship, x, y);
-      if (status) {
-        statusResponse = status;
-        ship.status = status;
-      }
-    });
-    let data = JSON.stringify({
-      position: {
-        x: x,
-        y: y,
-      },
-      currentPlayer: indexPlayer,
-      status: statusResponse,
-    });
     let response = {
       type: "attack",
-      data: data,
+      data: "",
       id: 0,
     };
-    if (statusResponse == "miss" || statusResponse == "kill") {
-      turnHandler(gameBot!, true);
+    if (gameBot?.currentPlayer !== indexPlayer) {
+      response = botAttack(gameBot!.user, gameBot!.botIndex);
+    } else {
+      let statusResponse = "miss";
+      gameBot?.bot.forEach((ship) => {
+        let status = getDamagedCells(ship, x, y);
+        if (status) {
+          statusResponse = status;
+          ship.status = status;
+        }
+      });
+      let data = JSON.stringify({
+        position: {
+          x: x,
+          y: y,
+        },
+        currentPlayer: indexPlayer,
+        status: statusResponse,
+      });
+      response.data = data;
+      if (statusResponse == "miss" || statusResponse == "kill") {
+        turnHandler(gameBot!, true);
+      }
+      gameBot?.user.send(JSON.stringify(response));
+      const finish = finishHandler(gameBot?.bot!, indexPlayer);
+      if (finish) {
+        broadcast([gameBot?.user!], finish, "for game users");
+        winnersHandler(gameBot!.user.name, clients, true);
+      }
     }
-    gameBot?.user.send(JSON.stringify(response));
-    const finish = finishHandler(gameBot?.bot!, indexPlayer);
-    if (finish) {
-      broadcast([gameBot?.user!], finish, "for game users");
-      winnersHandler(gameBot!.user.name, clients, true);
-    }
-    // }
   }
 };
-//JSON.stringify({"type":"add_ships","data":"{\"gameId\":0,\"ships\":[{\"position\":{\"x\":6,\"y\":5},\"direction\":true,\"type\":\"huge\",\"length\":4},{\"position\":{\"x\":2,\"y\":0},\"direction\":true,\"type\":\"large\",\"length\":3},{\"position\":{\"x\":5,\"y\":3},\"direction\":false,\"type\":\"large\",\"length\":3},{\"position\":{\"x\":7,\"y\":0},\"direction\":true,\"type\":\"medium\",\"length\":2},{\"position\":{\"x\":4,\"y\":0},\"direction\":false,\"type\":\"medium\",\"length\":2},{\"position\":{\"x\":2,\"y\":6},\"direction\":false,\"type\":\"medium\",\"length\":2},{\"position\":{\"x\":8,\"y\":6},\"direction\":true,\"type\":\"small\",\"length\":1},{\"position\":{\"x\":8,\"y\":8},\"direction\":true,\"type\":\"small\",\"length\":1},{\"position\":{\"x\":0,\"y\":7},\"direction\":false,\"type\":\"small\",\"length\":1},{\"position\":{\"x\":0,\"y\":1},\"direction\":false,\"type\":\"small\",\"length\":1}],\"indexPlayer\":1}","id":0})

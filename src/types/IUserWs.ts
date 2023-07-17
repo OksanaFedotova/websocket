@@ -6,5 +6,6 @@ interface IUserWS extends WebSocket {
   index: number;
   ships?: IShip[];
   inGame?: boolean;
+  attacks: { x: number; y: number }[];
 }
 export default IUserWS;

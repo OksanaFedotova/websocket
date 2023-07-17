@@ -20,7 +20,6 @@ export const handler = (
       registrationHandler(message.data, wsClient as IUserWS, clients);
       break;
     case "create_room":
-      //console.log(message.type)
       createRoomHandler(message.data, wsClient as IUserWS, clients);
       break;
     case "add_user_to_room":

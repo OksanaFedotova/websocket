@@ -2,6 +2,7 @@ import dbBot from "../../../../db/dbBot";
 import dbUsers from "../../../../db/dbUsers";
 import { IResponse } from "../../../../types/IResponse";
 import IUserWS from "../../../../types/IUserWs";
+import { getArray } from "../../../../utils/utils";
 
 export default (wsClient: IUserWS) => {
   const data = {
@@ -18,11 +19,12 @@ export default (wsClient: IUserWS) => {
     idGame: dbBot.length,
     user: wsClient,
     startGame: 0,
-    currentPlayer: wsClient,
+    currentPlayer: wsClient.index,
     turn: 0,
     gameType: "bot",
     bot: [],
-    botIndex: dbUsers.size,
+    botIndex: dbUsers.size + 1,
+    botMap: getArray(100),
   };
   dbBot.push(game);
 };

@@ -24,6 +24,7 @@ export default (
     roomId: dbRooms.length,
     roomUsers: [],
   };
+  ws.attacks = [];
   room.roomUsers.push(ws);
   dbRooms.push(room);
   updateRoom(clients);

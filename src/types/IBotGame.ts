@@ -5,10 +5,11 @@ interface IBotGame {
   idGame: number;
   user: IUserWS;
   startGame: number;
-  currentPlayer: IUserWS;
+  currentPlayer: number;
   bot: IShip[];
   turn: number;
   gameType: string;
   botIndex: number;
+  botMap: number[];
 }
 export default IBotGame;

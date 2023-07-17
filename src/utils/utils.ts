@@ -1,5 +1,9 @@
+import IShip from "../types/IShip";
+import IUserWS from "../types/IUserWs";
+
 const getArray = (length: number) =>
   Array.from({ length: length }, (_, index) => index);
+
 const deleteCells = (arr: number[], x: number, y: number, length: number) => {
   for (let i = 0; i < length + 1; i++) {
     let yArr = 10 * y + i * 10;
@@ -27,12 +31,12 @@ const getOccupiedCells = (
   }
 };
 
-const checkCoordinates = (arr: number[], x: number, coor: number[]) => {
-  return !coor.some((el) => {
+const checkCoordinates = (arr: number[], x: number, coor: number[]) =>
+  coor.some((el) => {
     const num = el * 10 + x;
     return arr.includes(num);
   });
-};
+
 const calcEmptyEls = (arr: (number | undefined)[]) => {
   let res = 0;
   for (let i = 0; i < arr.length; i++) {
@@ -42,4 +46,48 @@ const calcEmptyEls = (arr: (number | undefined)[]) => {
   }
   return res;
 };
-export { calcEmptyEls };
+const checkAttack = (x: number, y: number, currentPlayer: IUserWS) =>
+  currentPlayer.attacks.some(
+    (attack) => JSON.stringify(attack) === JSON.stringify({ x, y })
+  );
+
+const checkStatus = (point: number, arr: number[], a: number, b: number) => {
+  let status;
+  if (point === a) {
+    arr.forEach((coor, i) => {
+      if (coor === b) {
+        delete arr[i];
+        const damagedCells = calcEmptyEls(arr);
+        status = damagedCells === arr.length ? "killed" : "shot";
+      }
+    });
+  }
+  return status;
+};
+const getDamagedCells = (ship: IShip, x: number, y: number) => {
+  let status;
+  if (ship.direction) {
+    if (
+      typeof ship.coordinates!.x === "number" &&
+      typeof ship.coordinates!.y === "object"
+    ) {
+      status = checkStatus(ship.coordinates!.x, ship.coordinates!.y, x, y);
+    }
+  } else {
+    if (
+      typeof ship.coordinates!.y === "number" &&
+      typeof ship.coordinates!.x === "object"
+    ) {
+      status = checkStatus(ship.coordinates!.y, ship.coordinates!.x, y, x);
+    }
+  }
+  return status;
+};
+export {
+  getArray,
+  checkCoordinates,
+  getOccupiedCells,
+  calcEmptyEls,
+  checkAttack,
+  getDamagedCells,
+};
