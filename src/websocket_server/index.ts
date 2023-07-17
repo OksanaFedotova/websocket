@@ -5,7 +5,7 @@ import closeHandler from './handlers/closeHandler';
 import IUserWS from '../types/IUserWs';
 
 export const webSocketServer = () => {
-  const PORT = process.env.port || 3000;
+  const PORT = 3000;
   const wsServer: Server = new WebSocketServer({ port: +PORT });
   console.log(`Start WebSocket server on the ${PORT} port!`);
   wsServer.on('connection', (ws) => {
